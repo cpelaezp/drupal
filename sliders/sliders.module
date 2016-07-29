@@ -1,0 +1,294 @@
+<?php
+
+function sliders_block_info(){
+    $blocks['sliders'] = array(
+        'info' => t('Sliders'),
+    );
+
+    $blocks['twitters'] = array(
+        'info' => t('Twitter'),
+    );
+
+    return $blocks;
+}
+
+function sliders_block_view($delta = ''){
+    $block = array();
+    
+    switch($delta){
+        case 'sliders':
+            $path = drupal_get_path('module', 'sliders');
+            drupal_add_library('angularjs', 'angularjs');
+            
+            $block['content'] = array(
+                '#theme'    => 'sliders_theme',
+                '#attached' => array(
+                    'js' => array(
+                        'https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js',
+                        'https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js',
+                        'http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js',
+                        $path . '/js/sliders.gen.js',
+                    ),
+                ),
+            );
+            break;
+
+        case 'twitters':
+            $path = drupal_get_path('module', 'sliders');
+            drupal_add_library('angularjs', 'angularjs');
+            
+            $block['content'] = array(
+                '#theme'    => 'twitters_theme',
+                '#attached' => array(
+                    'js' => array(
+                        'https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js',
+                        'https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js',
+                        'http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js',
+                        $path . '/js/sliders.gen.js',
+                    ),
+                ),
+            );
+            break;
+    }
+    
+    return $block;
+}
+
+function all_sliders_page(){
+    drupal_add_library('angularjs', 'angularjs');
+    
+    $path = drupal_get_path('module', 'sliders');
+    drupal_add_js($path . '/js/sliders.gen.js');
+    
+    return theme("sliders_theme");
+}
+
+function sliders_theme(){
+    return array(
+        'sliders_theme' => array(
+            'template' => 'all-sliders',
+             'variables' => array(),
+        ),
+        'twitters_theme' => array(
+            'template' => 'all-twitters',
+             'variables' => array(),
+        ),
+    );
+}
+
+/*function sliders_menu(){
+    $items = array();
+    
+    $items['angular/sliders'] = array(
+        'title' => 'All sliders',
+        'page callback' => 'all_sliders_page',
+        'access arguments' => array('access content'),
+    );
+    
+    return $items;
+}*/
+
+/**
+ * Implements hook_block_configure().
+ */
+function sliders_block_configure($delta = ''){
+    $form = array();
+    
+    switch($delta){
+        case 'sliders':
+            /*// Text field form element
+            $form['text_body'] = array(
+                '#type' => 'text_format',
+                '#title' => t('Enter your text here in WYSIWYG format'),
+                '#default_value' => variable_get('text_variable', ''),
+            );*/
+
+            // File selection form element
+            $form['file'] = array(
+                '#name' => 'block_image',
+                '#type' => 'managed_file',
+                '#title' => t('Choose an Image File'),
+                '#description' => t('Select an Image for the custom block.  Only *.gif, *.png, *.jpg, and *.jpeg images allowed.'),
+                '#default_value' => variable_get('slider_image_fid', ''),
+                '#upload_location' => 'public://block_image/',
+                '#upload_validators' => array(
+                    'file_validate_extensions' => array('gif png jpg jpeg'),
+                ),
+            );            
+            break;
+
+        case 'twitters':
+            // File selection form element
+            $form['twitters_file'] = array(
+                '#name' => 'twitters_block_image',
+                '#type' => 'managed_file',
+                '#title' => t('Choose an Image File'),
+                '#description' => t('Select an Image for the custom block.  Only *.gif, *.png, *.jpg, and *.jpeg images allowed.'),
+                '#default_value' => variable_get('twitter_image_fid', ''),
+                '#upload_location' => 'public://block_image/',
+                '#upload_validators' => array(
+                    'file_validate_extensions' => array('gif png jpg jpeg'),
+                ),
+            );            
+            break;
+    }
+    
+    return $form;
+}
+
+/**
+ * Implements hook_block_save().
+ */
+function sliders_block_save($delta = '', $edit = array()){
+    switch($delta){
+        case 'sliders':
+            // save the text body
+            //variable_set('text_body', $edit['text_body']['value']);
+            
+            // save image
+            $file = file_load($edit['file']);
+            $file->status = FILE_STATUS_PERMANENT;
+            file_save($file);
+            $block = block_load('sliders', $delta);
+            file_usage_add($file, 'sliders', 'block', $block->bid);
+            variable_set('slider_image_fid', $file->fid);
+            break;
+
+        case 'twitters':
+            // save the text body
+            //variable_set('text_body', $edit['text_body']['value']);
+            
+            // save image
+            $file = file_load($edit['twitters_file']);
+            $file->status = FILE_STATUS_PERMANENT;
+            file_save($file);
+            $block = block_load('sliders', $delta);
+            file_usage_add($file, 'sliders', 'block', $block->bid);
+            variable_set('twitter_image_fid', $file->fid);
+            break;
+    }
+}
+
+/**
+ * Custom function to assemble renderable array for block content.
+ * Returns a renderable array with the block content.
+ * @return
+ *   returns a renderable array of block content.
+ */
+function sliders_view() {
+    $block = array();
+    
+    $image_file = file_load(variable_get('slider_image_fid', ''));
+    $image_path = '';
+    
+    if (isset($image_file->uri)){
+        $image_path = $image_file->uri;
+    }
+    
+    $image = theme_image(array(
+        'path' => ($image_path),
+        'alt' => t('Image description here.'),
+        'title' => t('This is our block image.'),
+        'attributes' => array('class' => 'class_name'),
+    ));
+    
+    // Capture WYSIWYG text from the variable
+  $text = variable_get('text_variable', '');
+
+  // Block output in HTML with div wrapper
+  $block = array(
+    'image' => array(
+      '#prefix' => '',
+      '#type' => 'markup',
+      '#markup' => $image,
+    ),
+    /*'message' => array(
+      '#type' => 'markup',
+      '#markup' => $text,
+      '#suffix' => '',
+    ),*/
+  );
+
+  return $block;
+}
+
+
+function sliders_node_info() {
+  return array(
+      'slidercontent' => array(
+          'name' => t('Slider Content'),
+          'base' => 'slidercontent',
+          'description' => t('Content of slider'),
+          'has_title' => TRUE,
+          'title_label' => t('Slider config'),
+          'locked' => FALSE,
+      ),
+      'companiescontent' => array(
+          'name' => t('Companies Content'),
+          'base' => 'companiescontent',
+          'description' => t('Content of companies'),
+          'has_title' => TRUE,
+          'title_label' => t('Companies Info'),
+          'locked' => FALSE,
+      ),
+  );
+}
+ 
+function sliders_form($node, $form_state) {
+
+    switch($node){
+        case 'slidercontent':
+            $form['slidercontent_url'] = array(
+                  '#type'           => 'textfield',     
+                  '#default_value'  => theme_get_setting('slidercontent_url'),     
+                  '#description'     => t('Config the social network Instagram'),     
+                  '#states'         => array(
+                      'disabled'     => array(
+                        'input[name="chkinstagram"]' => array('checked' => FALSE),
+                      ),
+                  ),
+            );    
+
+            // File selection form element
+            $form['slidercontent_file'] = array(
+                '#name' => 'block_image',
+                '#type' => 'managed_file',
+                '#title' => t('Choose an Image File'),
+                '#description' => t('Select an Image for the custom block.  Only *.gif, *.png, *.jpg, and *.jpeg images allowed.'),
+                '#default_value' => variable_get('slidercontent_file', ''),
+                '#upload_location' => 'public://block_image/',
+                '#upload_validators' => array(
+                    'file_validate_extensions' => array('gif png jpg jpeg'),
+                ),
+            );            
+            break;
+            
+        case 'companiescontent':
+            $form['slidercontent_url'] = array(
+                  '#type'           => 'textfield',     
+                  '#default_value'  => theme_get_setting('slidercontent_url'),     
+                  '#description'     => t('Config the social network Instagram'),     
+                  '#states'         => array(
+                      'disabled'     => array(
+                        'input[name="chkinstagram"]' => array('checked' => FALSE),
+                      ),
+                  ),
+            );    
+
+            // File selection form element
+            $form['companiescontent_file'] = array(
+                '#name' => 'block_image',
+                '#type' => 'managed_file',
+                '#title' => t('Choose an Image File'),
+                '#description' => t('Select an Image for the custom block.  Only *.gif, *.png, *.jpg, and *.jpeg images allowed.'),
+                '#default_value' => variable_get('companiescontent_file', ''),
+                '#upload_location' => 'public://block_image/',
+                '#upload_validators' => array(
+                    'file_validate_extensions' => array('gif png jpg jpeg'),
+                ),
+            );            
+            break;
+    }
+ 
+  return $form;
+}

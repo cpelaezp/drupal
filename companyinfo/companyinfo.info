@@ -1,0 +1,5 @@
+name = Company Info
+description = Save info of the your Company
+core = 7.x
+package = NSE Packages
+version = 1.0.0

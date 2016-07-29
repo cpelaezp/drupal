@@ -1,0 +1,8 @@
+name = contentstype
+description = Contents type
+package = ZZZ Pruebas
+core = 7.x
+
+;dependencies[] = content
+;dependencies[] = content_copy
+;dependencies[] = imagefield

@@ -1,0 +1,273 @@
+<?php
+
+require_once('filelog.php');
+
+
+/**
+ * @file
+ * implement hook_schema()
+ */
+
+function companyinfo_schema(){
+    $schema = array();
+    
+    insertlog('install.log', "Inicio de instalación");
+    
+
+    // information of the oompany
+    $schema['nse_companyinfo'] = array(
+        'description' => 'Information of company',
+        'fields' => array(
+            'id' => array(
+                'description' => 'The primary identifier for company',
+                'type'        => 'serial',
+                'not null'    => TRUE,
+                'unsigned'    => TRUE,
+            ),
+            'name' => array(
+                'description' => 'Name of the company company',
+                'type'        => 'varchar',
+                'length'      => 100,
+                'not null'    => TRUE,
+                'default'    => '',
+            ),
+            'description' => array(
+                'description' => 'Description of the company company',
+                'type'        => 'varchar',
+                'length'      => 255,
+                'not null'    => TRUE,
+                'default'    => '',
+            ),
+            'address' => array(
+                'description' => 'Address od the company',
+                'type'        => 'varchar',
+                'length'      => 255,
+                'not null'    => TRUE,
+                'default'    => '',
+            ),
+            'phones' => array(
+                'description' => 'Phones of the company',
+                'type'        => 'varchar',
+                'length'      => 100,
+                'not null'    => TRUE,
+                'default'    => '',
+            ),
+            'email' => array(
+                'description' => 'Email of the company',
+                'type'        => 'varchar',
+                'length'      => 100,
+                'not null'    => TRUE,
+                'default'    => '',
+            ),
+            'logo' => array(
+                'description' => 'Path of logo of the company',
+                'type'        => 'varchar',
+                'length'      => 200,
+                'not null'    => TRUE,
+                'default'    => '',
+            ),
+            'icon' => array(
+                'description' => 'Path of icon of the company',
+                'type'        => 'varchar',
+                'length'      => 200,
+                'not null'    => TRUE,
+                'default'    => '',
+            ),
+            'isPrimarySite' => array(
+                'description' => 'Path of logo of the company',
+                'type'        => 'int',
+                'length'      => 1,
+                'not null'    => TRUE,
+                'default'    => 0,
+            ),
+            'idstatus' => array(
+                'description' => 'State of Social Network',
+                'type'        => 'int',
+                'length'      => 1,
+                'not null'    => TRUE,
+                'default'    => 0,
+            ),
+        ),
+        'primary key' => array('id'),
+    );
+
+    insertlog('install.log', "se creo la tabla nse_companyinfo");
+    
+    // Information of company in the social network
+    $schema['nse_companyinfo_socialnetwork'] = array(
+        'description' => 'Information of company in the social network',
+        'fields' => array(
+            'id' => array(
+                'description' => 'The primary identifier for social network',
+                'type'        => 'serial',
+                'not null'    => TRUE,
+                'unsigned'    => TRUE,
+            ),
+            'idtypesocialnetwork' => array(
+                'description' => 'typesocialnetwork',
+                'type'        => 'int',
+                'length'      => 3,
+                'not null'    => TRUE,
+                'default'    => '',
+            ),
+            'idsocialnetwork' => array(
+                'description' => 'The identificator of social network',
+                'type'        => 'varchar',
+                'length'      => 100,
+                'not null'    => TRUE,
+                'default'    => '',
+            ),
+            'url' => array(
+                'description' => 'Url of site in Social Network',
+                'type'        => 'varchar',
+                'length'      => 255,
+                'not null'    => TRUE,
+                'default'    => '',
+            ),
+            'password' => array(
+                'description' => 'Password',
+                'type'        => 'varchar',
+                'length'      => 255,
+                'not null'    => TRUE,
+                'default'    => '',
+            ),
+            'useplugin' => array(
+                'description' => 'Use plugin in site',
+                'type'        => 'varchar',
+                'length'      => 100,
+                'not null'    => TRUE,
+                'default'    => '',
+            ),
+            'idstatus' => array(
+                'description' => 'State of Social Network',
+                'type'        => 'int',
+                'length'      => 1,
+                'not null'    => TRUE,
+                'default'    => 0,
+            ),
+            'created_at' => array(
+                'description' => t('The creation date.'),
+                'mysql_type' => 'DATETIME',
+                'not null' => TRUE
+            ),
+            'modified_at' => array(
+                'description' => t('The creation date.'),
+                'mysql_type' => 'DATETIME',
+                'not null' => TRUE
+            ),
+        ),
+        'primary key' => array('id', 'idtypesocialnetwork'),
+    );
+
+    insertlog('install.log', "se creo la tabla nse_companyinfo_socialnetwork");
+
+    // Information of company in the social network
+    $schema['nse_typesocialnetwork'] = array(
+        'description' => 'Type of social network',
+        'fields' => array(
+            'idtypesocialnetwork' => array(
+                'description' => 'The primary identifier for social network',
+                'type'        => 'serial',
+                'not null'    => TRUE,
+                'unsigned'    => TRUE,
+            ),
+            'typesocialnetwork' => array(
+                'description' => 'Type of social network',
+                'type'        => 'varchar',
+                'length'      => 100,
+                'not null'    => TRUE,
+                'default'    => '',
+            ),
+            'url' => array(
+                'description' => 'Url of site in Social Network',
+                'type'        => 'varchar',
+                'length'      => 255,
+                'not null'    => TRUE,
+                'default'    => '',
+            ),
+            'idstatus' => array(
+                'description' => 'State of Social Network',
+                'type'        => 'int',
+                'length'      => 1,
+                'not null'    => TRUE,
+                'default'    => 0,
+            ),
+            'created_at' => array(
+                'description' => t('The creation date.'),
+                'mysql_type' => 'DATETIME',
+                'not null' => TRUE
+            ),
+            'modified_at' => array(
+                'description' => t('The creation date.'),
+                'mysql_type' => 'DATETIME',
+                'not null' => TRUE
+            ),
+        ),
+        'primary key' => array('id', 'idtypesocialnetwork'),
+    );
+
+    insertlog('install.log', "se creo la tabla nse_typesocialnetwork");
+
+    return $schema;
+}
+
+/**
+ * Implements hook_install()
+ *
+ *
+ */
+function companyinfo_install(){
+    
+    // add type of social networks
+    $register_tsn = new stdClass();
+    $register_tsn->typesocialnetwork = 'FaceBook';
+    $register_tsn->url = 'www.facebook.com';
+    $register_tsn->idstatus = 1;
+    $register_tsn->created_at = format_date(time(), 'custom', 'Y-m-d H:i:s');
+    $register_tsn->modified_at = format_date(time(), 'custom', 'Y-m-d H:i:s');
+    drupal_write_record('nse_typesocialnetwork', $register_tsn);
+
+    $register_tsn = new stdClass();
+    $register_tsn->typesocialnetwork = 'Twitter';
+    $register_tsn->url = 'www.twitter.com';
+    $register_tsn->idstatus = 1;
+    $register_tsn->created_at = format_date(time(), 'custom', 'Y-m-d H:i:s');
+    $register_tsn->modified_at = format_date(time(), 'custom', 'Y-m-d H:i:s');
+    drupal_write_record('nse_typesocialnetwork', $register_tsn);
+
+    $register_tsn = new stdClass();
+    $register_tsn->typesocialnetwork = 'Instagram';
+    $register_tsn->url = 'www.instagram.com';
+    $register_tsn->idstatus = 1;
+    $register_tsn->created_at = format_date(time(), 'custom', 'Y-m-d H:i:s');
+    $register_tsn->modified_at = format_date(time(), 'custom', 'Y-m-d H:i:s');
+    drupal_write_record('nse_typesocialnetwork', $register_tsn);
+    
+    insertlog('install.log', "se creo la datos de la tabla nse_typesocialnetwork");
+
+}
+
+/**
+ * Implements hook_update_N().
+ * Add meta_robots and meta_canonical fields to {beanstag} table.
+ */
+function companyinfo_update_7000() {
+  // Add meta robots
+  $spec = array(
+    'type' => 'varchar',
+    'description' => t('The meta robots for the path alias.'),
+    'length' => '255',
+    'not null' => FALSE,
+  ); 
+  db_add_field('beanstag', 'meta_robots', $spec);
+   
+  // Add meta_canonical
+  $spec = array(
+    'type' => 'varchar',
+    'description' => t('The meta canonical for the path alias.'),
+    'length' => '255',
+    'not null' => FALSE,
+  ); 
+    
+  db_add_field('beanstag', 'meta_canonical', $spec);
+}

@@ -1,0 +1,26 @@
+<?php
+ 
+function newsletter_node_info() {
+  return array(
+      'newsletter' => array(
+          'name' => t('News Letter'),
+          'base' => 'newsletter',
+          'description' => t('A news letter content type'),
+          'has_title' => TRUE,
+          'title_label' => t('Newsletter Title12'),
+          'locked' => FALSE,
+      ),
+  );
+}
+ 
+function newsletter_form($node, $form_state) {
+  $type = node_type_get_type($node);
+  $form['title'] = array(
+    '#type' => 'textfield',
+    '#title' => check_plain($type->title_label),
+    '#default_value' => !empty($node->title) ? $node->title : '',
+    '#required' => TRUE, '#weight' => -5
+  );
+ 
+  return $form;
+}

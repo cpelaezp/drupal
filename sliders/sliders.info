@@ -1,0 +1,7 @@
+name = sliders
+description = Angulat slider
+version = 7.x-1.0
+core = 7.x
+package = ZZZ Pruebas
+
+stylesheets[all][] = css/sliders.css

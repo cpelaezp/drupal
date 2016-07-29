@@ -1,0 +1,411 @@
+<?php
+
+//require_once DRUPAL_ROOT . '/includes/database.pgsql.inc';
+
+
+/**
+ * @file
+ * Company Info
+ *
+ */
+
+
+/**
+ * Implements hook_perm().
+ */
+function companyinfo_perm() {
+    return array('companyinfo');
+}
+
+function companyinfo_menu(){
+    $items = array();
+    
+    $items['companyinfo/info'] = array(
+        'title' => 'Company Info',
+        'description' => 'General Information of company',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('companyinfo_info_form'),
+        'access callback' => TRUE,
+    );
+
+    $items['companyinfo/list'] = array(
+        'title' => 'Company List',
+        'description' => 'List of Companies',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('companyinfo_list_form'),
+        'access callback' => TRUE,
+    );
+
+    $items['companyinfo/list1'] = array(
+        'title' => 'Company List Temp',
+        'description' => 'List of Companies',
+        'page callback' => 'projects_list',
+        'page arguments' => array('companyinfo_list1_form'),
+        'access callback' => TRUE,
+        'type' => MENU_NORMAL_ITEM,
+    );
+
+    return $items;
+}
+
+function projects_list() {
+  $header = array('Name', 'Type', 'Updated', 'Description');
+
+    /*
+  # set the database table
+  $query = db_select('projects', 'p')->extend('PagerDefault');
+
+  # get the desired fields from the database
+  $query->condition('user_id', get_user_id())
+        ->fields('p', array('id', 'name', 'project_count_type', 'last_updated', 'description'))
+        ->orderBy('last_updated', 'DESC')
+        ->limit(3);
+
+  # execute the query
+  $results = $query->execute();
+    */
+    $sql = 'SELECT id, name, description, idstatus, isprimarysite FROM {nse_companyinfo}';
+    $results = db_query($sql);
+    
+
+  # build the table fields
+  $rows = array();
+  foreach ($results as $row) {
+    $rows[] = array("<a href=\"/projects/edit/" . $row->id . "\">" . $row->name . '</a>',
+                    $row->isprimarysite,
+                    $row->idstatus,
+                    $row->description,
+    );
+  }
+  $output = theme('table', array('header' => $header,
+                  	         'rows' => $rows ));
+
+  # add the pager
+  $output .= theme('pager');
+
+  return $output;
+}
+
+function companyinfo_list_form($form, &$form_state){
+    $filepath = drupal_get_path('module', 'companyinfo') . '/images/';
+    
+    $form['add'] = array(
+        '#markup'   => l(t('New Company'),'companyinfo/info'),
+    );
+    
+    $sql = 'SELECT id, name, description, idstatus, isprimarysite FROM {nse_companyinfo}';
+    $data = db_query($sql);
+    
+    $header = array(
+      'edit' => t('Edit'),
+      'delete' => t('Delete'),
+      'isprimarysite' => t('Is Site'),
+      'name' => t('Company'),
+      'description' => t('Descriptión'),
+      'idstatus' => t('Status'),
+    );
+    
+    $options = array();
+    
+    foreach($data as $row){
+        $options[$row->id] = array(
+            'edit' => '<a href="info/edit/' . $row->id . '"><img style="height: 25px; width: 25px;" src="../' . $filepath . 'edit.png" /></a>', 
+            'delete' => '<a href="info/delete/' . $row->id . '"><img style="height: 25px; width: 25px;" src="../' . $filepath . 'delete.png" /></a>', 
+            'isprimarysite' => '<span>' . $row->isprimarysite . '<span>', 
+            'name' => '<span>' . $row->name . '<span>',
+            'description' => '<span>' . $row->description . '<span>', 
+            'idstatus' => '<span>' . $row->idstatus . '<span>',
+        );  
+    }
+
+    $form['table'] = array(
+        '#type' => 'tableselect',
+        '#header' => $header,
+        '#options' => $options,
+        '#empty' => t('No content avaliable'),
+        '#multiple' => FALSE,  
+        '#sticky' => FALSE,
+        '#attributes' => array(
+              'class' => array(
+                  'tableheader-process'
+              ),
+          ),
+    );    
+  
+    // disabled checkbox
+    foreach( $options as $key => $value ) {
+        $form['table'][$key]['#disabled'] = true;
+    }
+    
+    $form['pager'] = array(
+		'#markup' => theme('pager'),
+		'#weight' => 12,
+	);
+    
+    return $form;    
+}
+
+function companyinfo_list1_form($form, &$form_state){
+    $filepath = drupal_get_path('module', 'companyinfo') . '/images/';
+    
+    $form['add'] = array(
+        '#markup'   => l(t('New Company'),'companyinfo/info'),
+    );
+    
+    $sql = 'SELECT id, name, description, idstatus, isprimarysite FROM {nse_companyinfo}';
+    $data = db_query($sql);
+    
+    $header = array(
+      'edit' => t('Edit'),
+      'delete' => t('Delete'),
+      'isprimarysite' => t('Is Site'),
+      'name' => t('Company'),
+      'description' => t('Descriptión'),
+      'idstatus' => t('Status'),
+    );
+    
+    $options = array();
+    
+    foreach($data as $row){
+        $options[$row->id] = array(
+            'edit' => '<a href="info/edit/' . $row->name . '"><img style="height: 25px; width: 25px;" src="../' . $filepath . 'edit.png" /></a>', 
+            'delete' => '<a href="info/delete/' . $row->name . '"><img style="height: 25px; width: 25px;" src="../' . $filepath . 'delete.png" /></a>', 
+            'isprimarysite' => '<span>' . $row->isprimarysite . '<span>', 
+            'name' => '<span>' . $row->name . '<span>',
+            'description' => '<span>' . $row->description . '<span>', 
+            'idstatus' => '<span>' . $row->idstatus . '<span>',
+        );  
+    }
+
+    $form['table'] = array(
+        '#type' => 'tableselect',
+        '#header' => $header,
+        '#options' => $options,
+        '#empty' => t('No content avaliable'),
+        '#multiple' => FALSE,  
+        '#sticky' => FALSE,
+        '#attributes' => array(
+              'class' => array(
+                  'tableheader-process'
+              ),
+          ),
+    );    
+  
+    // disabled checkbox
+    foreach( $options as $key => $value ) {
+        $form['table'][$key]['#disabled'] = true;
+    }
+    
+    return $form;    
+}
+
+function companyinfo_info_form($form, &$form_state, $operation = 'add', $id = NULL){
+    
+    // if edit or delete
+    if ($operation != 'add')
+    {
+        // save id 
+        $form['uid'] = array(
+            '#type' => 'hidden',
+            '#value' => $id,
+        );
+        
+    }
+    
+    $form['name'] = array(
+        '#type' => 'textfield',
+        '#title' => 'Name of company',
+        '#size' => 80,
+        '#maxlength' => 80,
+        '#required' => TRUE,
+    );
+    
+    $form['description'] = array(
+        '#type' => 'textfield',
+        '#title' => 'Description',
+        '#size' => 80,
+        '#maxlength' => 80,
+        '#required' => TRUE,
+    );
+
+    $form['address'] = array(
+        '#type' => 'textfield',
+        '#title' => 'Address',
+        '#size' => 80,
+        '#maxlength' => 80,
+        '#required' => TRUE,
+    );
+
+    $form['phones'] = array(
+        '#type' => 'textfield',
+        '#title' => 'Phones',
+        '#size' => 50,
+        '#maxlength' => 50,
+        '#required' => TRUE,
+    );
+
+    $form['email'] = array(
+        '#type' => 'textfield',
+        '#title' => 'Email',
+        '#size' => 50,
+        '#maxlength' => 50,
+        '#required' => TRUE,
+    );
+
+  if ($operation != 'add')  {
+      // Social Network    
+      $form['socialNetwork'] = array(
+          '#type'           => 'fieldset',
+          '#title'          => t('Social Network'),
+          '#description'    => t('Config Social Network'),
+      );
+
+          // Social Network - Facebook        
+          $form['socialNetwork']['containerFacebook'] = array(
+              '#type'           => 'container',
+              '#attributes'     => array(
+                  'class' => array('container-inline'),
+              ),
+          );      
+
+              $form['socialNetwork']['containerFacebook']['chkfacebook'] = array(
+                  '#type'           => 'checkbox',     
+                  '#title'          => t('Use Facebook'),     
+                  '#default_value'  => theme_get_setting('chkfacebook'),     
+              );  
+
+              $form['socialNetwork']['containerFacebook']['urlfacebook'] = array(
+                  '#type'           => 'textfield',     
+                  '#default_value'  => theme_get_setting('urlfacebook'),     
+                  '#description'    => t('Config the social network FaceBook'),     
+                  '#states'         => array(
+                      'disabled'     => array(
+                        'input[name="chkfacebook"]' => array('checked' => FALSE),
+                      ),
+                  ),
+              );    
+
+          // Social Network - Twitter
+          $form['socialNetwork']['containerTwitter'] = array(
+              '#type'           => 'container',
+              '#attributes'     => array(
+                  'class' => array('container-inline'),
+              ),
+          );      
+
+              $form['socialNetwork']['containerTwitter']['chktwitter'] = array(
+                  '#type'           => 'checkbox',     
+                  '#title'          => t('Use Twitter'),     
+                  '#default_value'  => theme_get_setting('chktwitter'),     
+              );  
+
+              $form['socialNetwork']['containerTwitter']['urltwitter'] = array(
+                  '#type'           => 'textfield',     
+                  '#default_value'  => theme_get_setting('urltwitter'),     
+                  '#description'     => t('Config the social network Twitter'),     
+                  '#states'         => array(
+                      'disabled'     => array(
+                        'input[name="chktwitter"]' => array('checked' => FALSE),
+                      ),
+                  ),
+              );    
+
+          // Social Network - Instagram
+          $form['socialNetwork']['containerInstagram'] = array(
+              '#type'           => 'container',
+              '#attributes'     => array(
+                  'class' => array('container-inline'),
+              ),
+          );      
+
+              $form['socialNetwork']['containerInstagram']['chkinstagram'] = array(
+                  '#type'           => 'checkbox',     
+                  '#title'          => t('Use Instagram'),     
+                  '#default_value'  => theme_get_setting('chkinstagram'),     
+              );  
+
+              $form['socialNetwork']['containerInstagram']['urlinstagram'] = array(
+                  '#type'           => 'textfield',     
+                  '#default_value'  => theme_get_setting('urlinstagram'),     
+                  '#description'     => t('Config the social network Instagram'),     
+                  '#states'         => array(
+                      'disabled'     => array(
+                        'input[name="chkinstagram"]' => array('checked' => FALSE),
+                      ),
+                  ),
+              );    
+
+        $form['submit_button'] = array(
+            '#type' => 'submit',
+            '#value' => t('Save Information'),
+        );
+  
+      
+        // return data 
+        $sql = 'SELECT id, name, description, idstatus, isprimarysite FROM {nse_companyinfo} where id = ' . $id;
+        $results = db_query($sql);
+
+        if ($result != NULL){
+            $form_state['storage']['name']          = $row->name;
+            $form_state['storage']['description']   = $row->description;
+            $form_state['storage']['address']       = $row->address;
+            $form_state['storage']['phones']        = $row->phones;
+            $form_state['storage']['description']   = $row->description;
+            $form_state['storage']['email']         = $row->email;
+            $form_state['storage']['logo']          = $row->logo;
+            $form_state['storage']['icon']          = $row->icon;
+            $form_state['storage']['isPrimarySite'] = $row->isPrimarySite;
+            $form_state['storage']['idstatus']      = $row->idstatus;
+        }
+    }  
+    else
+    {        
+        $form['submit_button'] = array(
+            '#type' => 'submit',
+            '#value' => t('Save and Next'),
+        );
+    }    
+    
+    return $form;
+} 
+
+function companyinfo_info_form_validate($form, &$form_state){
+    if(!$form_state['values']['name'] == ""){
+        form_set_error('name', t('Name of company is required..'));
+    }
+}
+
+function companyinfo_info_form_submit($form, &$form_state){
+    form_state_values_clean($form_state);
+    
+    insertlog('install.log', "Se ingresan datos, " . $name);
+
+    // And here is the value that was submitted:
+    drupal_set_message($form_state['values']['field_org_id']);    
+    
+    // Insert Data into Tables Drupal 7 version
+    $index = db_insert('nse_companyinfo')
+    ->fields(array(
+        'name' => $name,
+        'description' => $description,
+        'address' => $address,
+        'phones' => $phones,
+        'email' => $email,
+        'logo' => $logo,
+        'icon' => $icon,
+        'isPrimarySite' => $isPrimarySite,
+        'idstatus' => $idstatus,
+        ))
+    ->execute();
+    
+    /*
+    $values = array();
+    for ($i = 0; $i < 5; $i++) {
+        $values("field_$i_value" = strip_tags($form_state['values']['field_$i']));
+    }
+    flat_val = implode(',', $values);
+    $sql = "INSERT INTO {table} (field_0_value, field_1_value, field_2_value, field_3_value, field_4_value) VALUES (%s)"
+    $res = db_query($sql, $flat_val);
+    drupal_set_message("Thank you for your submission.", 'status');
+    */
+}

@@ -1,0 +1,43 @@
+<?php
+// $Id$
+/**
+ * Implementation of hook_help().
+ */
+function contentstype_help($path, $arg) {
+  switch ($path) {
+    case 'admin/modules#description':
+      return t('What my module does.');
+    case 'admin/help#mymodule':
+      return t('<h3>Description:</h3><p>A longer description of what my module does.</p>');
+  }
+}
+/**
+ * Implementation of hook_perm().
+ */
+function contentstype_perm() {
+  return array(
+    'administer my_content_type', 
+    'create my_content_type', 
+    'delete my_content_type',
+    'delete my_content_type',
+    'edit my_content_type', 
+    'edit own my_content_type'
+   );
+}
+
+/**
+ * Implementation of hook_access().
+ */
+function contentstype_access($op, $node, $account) {
+  switch ($op) {
+    case 'create':
+      return user_access('create my_content_type', $account);
+      break;
+    case 'update':
+      return user_access('edit my_content_type', $account) || (user_access('edit own my_content_type', $account) && ($account->uid == $node->uid));
+      break;
+    case 'delete':
+      return user_access('delete my_content_type', $account) || (user_access('delete own my_content_type', $account) && ($account->uid == $node->uid));
+      break;
+  }
+}

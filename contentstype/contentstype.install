@@ -1,0 +1,18 @@
+<?php
+// $Id: 
+/**
+ * Implementation of hook_install().
+ */
+function contentstype_install() {
+// install the content type
+  $filename = drupal_get_path('module','mymodule') . "/mymodule.install.inc";
+  $content = implode ('', file ($filename));
+  // Build form state
+  $form_state = array(
+     'values' => array(
+        'type_name' => '<create>',
+        'macro' => $content,
+     ),
+  );
+  drupal_execute("content_copy_import_form", $form_state);
+}

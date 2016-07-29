@@ -1,0 +1,18 @@
+<?php
+
+function angularform_menu(){
+    $items['angular/form'] = array(
+        'title' => t('Angular Form'),
+        'description' => t('Form'),
+        'page callback' => 'angularform_page',
+        'page arguments' => array('custom params'),
+        'access callback' = TRUE,
+    );
+    
+    return $items;
+}
+
+function angularform_page(delta = ''){
+    
+}
+    
